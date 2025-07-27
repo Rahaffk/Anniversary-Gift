@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Open When... 💌</title>
+  <style>
+    body {
+      background-color: #ffeef8;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      color: #c94f7c;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .envelope-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      max-width: 1000px;
+    }
+    .envelope {
+      width: 140px;
+      height: 100px;
+      background-color: #fff0f5;
+      border: 2px solid #ffb6c1;
+      border-radius: 8px;
+      box-shadow: 2px 2px 10px #f5cfdc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      text-align: center;
+      padding: 0.5rem;
+    }
+    .envelope:hover {
+      transform: scale(1.05);
+    }
+    .message-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 90%;
+      max-width: 500px;
+      transform: translate(-50%, -50%);
+      background-color: #fff0f5;
+      padding: 1.5rem;
+      border: 2px solid #ffb6c1;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #f3a6c9;
+      z-index: 10;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 5;
+    }
+    .close-btn {
+      margin-top: 1rem;
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Open When... 💌</h1>
+  <div class="envelope-grid" id="envelopeGrid"></div>
+  <div class="overlay" id="overlay" onclick="closePopup()"></div>
+  <div class="message-popup" id="messagePopup">
+    <div id="popupContent"></div>
+    <button class="close-btn" onclick="closePopup()">Close</button>
+  </div>
+  <script>
+    const messages = [
+      { topic: "when you first receive this", message: "Hi love, this is your letter for when you first receive this. I love you. 💗" },
+      { topic: "when you have a bad day", message: "Hi love, this is your letter for when you have a bad day. I love you. 💗" },
+      { topic: "when you miss me", message: "Hi love, this is your letter for when you miss me. I love you. 💗" },
+      { topic: "when you need to laugh", message: "Hi love, this is your letter for when you need to laugh. I love you. 💗" },
+      { topic: "when you can’t sleep", message: "Hi love, this is your letter for when you can’t sleep. I love you. 💗" },
+      { topic: "when you’re feeling insecure", message: "Hi love, this is your letter for when you’re feeling insecure. I love you. 💗" },
+      { topic: "when you’re happy", message: "Hi love, this is your letter for when you’re happy. I love you. 💗" },
+      { topic: "when you’re lonely", message: "Hi love, this is your letter for when you’re lonely. I love you. 💗" },
+      { topic: "when you’re worried about something", message: "Hi love, this is your letter for when you’re worried about something. I love you. 💗" },
+      { topic: "when you need a pep talk", message: "Hi love, this is your letter for when you need a pep talk. I love you. 💗" },
+      { topic: "when it’s your birthday", message: "Hi love, this is your letter for when it’s your birthday. I love you. 💗" },
+      { topic: "when it’s the start of a new year", message: "Hi love, this is your letter for when it’s the start of a new year. I love you. 💗" },
+      { topic: "when you feel like giving up", message: "Hi love, this is your letter for when you feel like giving up. I love you. 💗" },
+      { topic: "when you’re frustrated about stuff", message: "Hi love, this is your letter for when you’re frustrated about stuff. I love you. 💗" },
+      { topic: "when you’re sick", message: "Hi love, this is your letter for when you’re sick. I love you. 💗" },
+      { topic: "when you’re doubting yourself", message: "Hi love, this is your letter for when you’re doubting yourself. I love you. 💗" },
+      { topic: "when you need a hug", message: "Hi love, this is your letter for when you need a hug. I love you. 💗" },
+      { topic: "when you need to hear a compliment", message: "Hi love, this is your letter for when you need to hear a compliment. I love you. 💗" },
+      { topic: "when you’ve made a mistake", message: "Hi love, this is your letter for when you’ve made a mistake. I love you. 💗" },
+      { topic: "when you need motivation", message: "Hi love, this is your letter for when you need motivation. I love you. 💗" },
+      { topic: "when you need movie/TV show recommendations", message: "Hi love, this is your letter for when you need movie/TV show recommendations. I love you. 💗" },
+      { topic: "when you’re excited about something", message: "Hi love, this is your letter for when you’re excited about something. I love you. 💗" },
+      { topic: "when you’re bored", message: "Hi love, this is your letter for when you’re bored. I love you. 💗" },
+      { topic: "when you need to make a big decision", message: "Hi love, this is your letter for when you need to make a big decision. I love you. 💗" },
+      { topic: "when you’re really angry", message: "Hi love, this is your letter for when you’re really angry. I love you. 💗" },
+      { topic: "when we have an argument", message: "Hi love, this is your letter for when we have an argument. I love you. 💗" },
+      { topic: "when you want to hear about my favorite memory with you", message: "Hi love, this is your letter for when you want to hear about my favorite memory with you. I love you. 💗" },
+      { topic: "when we haven’t spoken in a while", message: "Hi love, this is your letter for when we haven’t spoken in a while. I love you. 💗" },
+      { topic: "when I don’t pick up the phone", message: "Hi love, this is your letter for when I don’t pick up the phone. I love you. 💗" },
+      { topic: "when you feel like giving up on your goals", message: "Hi love, this is your letter for when you feel like giving up on your goals. I love you. 💗" },
+      { topic: "when you do something embarrassing", message: "Hi love, this is your letter for when you do something embarrassing. I love you. 💗" },
+      { topic: "when you lose someone or something precious to you", message: "Hi love, this is your letter for when you lose someone or something precious to you. I love you. 💗" },
+      { topic: "when you wish I was there", message: "Hi love, this is your letter for when you wish I was there. I love you. 💗" },
+      { topic: "when you feel like crying", message: "Hi love, this is your letter for when you feel like crying. I love you. 💗" },
+      { topic: "when you do something you’re proud of", message: "Hi love, this is your letter for when you do something you’re proud of. I love you. 💗" },
+      { topic: "when you want to reminisce", message: "Hi love, this is your letter for when you want to reminisce. I love you. 💗" },
+      { topic: "when you need to feel loved", message: "Hi love, this is your letter for when you need to feel loved. I love you. 💗" },
+      { topic: "when you’re angry at me", message: "Hi love, this is your letter for when you’re angry at me. I love you. 💗" },
+      { topic: "when I’m angry at you", message: "Hi love, this is your letter for when I’m angry at you. I love you. 💗" },
+      { topic: "when you do something new", message: "Hi love, this is your letter for when you do something new. I love you. 💗" },
+      { topic: "when it’s our anniversary", message: "Hi love, this is your letter for when it’s our anniversary. I love you. 💗" },
+      { topic: "when you’re celebrating an accomplishment", message: "Hi love, this is your letter for when you’re celebrating an accomplishment. I love you. 💗" },
+      { topic: "when you need music recommendations", message: "Hi love, this is your letter for when you need music recommendations. I love you. 💗" },
+      { topic: "when there is an important occasion I can’t be there for", message: "Hi love, this is your letter for when there is an important occasion I can’t be there for. I love you. 💗" },
+      { topic: "when you want to learn about the things that reminded of you", message: "Hi love, this is your letter for when you want to learn about the things that reminded of you. I love you. 💗" },
+      { topic: "when you need food recommendations", message: "Hi love, this is your letter for when you need food recommendations. I love you. 💗" },
+      { topic: "when you need fitness motivation", message: "Hi love, this is your letter for when you need fitness motivation. I love you. 💗" },
+      { topic: "when you do something you’re not proud of", message: "Hi love, this is your letter for when you do something you’re not proud of. I love you. 💗" },
+      { topic: "when you need a gentle reminder", message: "Hi love, this is your letter for when you need a gentle reminder. I love you. 💗" },
+      { topic: "when something didn’t go how you planned", message: "Hi love, this is your letter for when something didn’t go how you planned. I love you. 💗" },
+      { topic: "when you don’t feel like getting out of bed", message: "Hi love, this is your letter for when you don’t feel like getting out of bed. I love you. 💗" },
+      { topic: "when you need a reason to keep going", message: "Hi love, this is your letter for when you need a reason to keep going. I love you. 💗" },
+      { topic: "when you want to hear something weird", message: "Hi love, this is your letter for when you want to hear something weird. I love you. 💗" },
+      { topic: "when you want to hear a story", message: "Hi love, this is your letter for when you want to hear a story. I love you. 💗" },
+      { topic: "when you’ve had a rough week", message: "Hi love, this is your letter for when you’ve had a rough week. I love you. 💗" },
+      { topic: "when you get some bad news", message: "Hi love, this is your letter for when you get some bad news. I love you. 💗" },
+      { topic: "when you get some good news", message: "Hi love, this is your letter for when you get some good news. I love you. 💗" },
+      { topic: "when someone lets you down", message: "Hi love, this is your letter for when someone lets you down. I love you. 💗" },
+      { topic: "when you feel hurt", message: "Hi love, this is your letter for when you feel hurt. I love you. 💗" },
+      { topic: "when it all feels too much", message: "Hi love, this is your letter for when it all feels too much. I love you. 💗" },
+      { topic: "when you don’t feel appreciated", message: "Hi love, this is your letter for when you don’t feel appreciated. I love you. 💗" },
+      { topic: "when you’re feeling anxious", message: "Hi love, this is your letter for when you’re feeling anxious. I love you. 💗" },
+      { topic: "when I feel too far away", message: "Hi love, this is your letter for when I feel too far away. I love you. 💗" },
+      { topic: "when you’re procrastinating", message: "Hi love, this is your letter for when you’re procrastinating. I love you. 💗" },
+      { topic: "when you feel blue for no reason", message: "Hi love, this is your letter for when you feel blue for no reason. I love you. 💗" },
+      { topic: "when you’re confused", message: "Hi love, this is your letter for when you’re confused. I love you. 💗" },
+      { topic: "when you want to hear my favorite traits about you", message: "Hi love, this is your letter for when you want to hear my favorite traits about you. I love you. 💗" },
+      { topic: "when you’re unsettling about the future", message: "Hi love, this is your letter for when you’re unsettling about the future. I love you. 💗" },
+      { topic: "when you need my advice", message: "Hi love, this is your letter for when you need my advice. I love you. 💗" },
+      { topic: "when you’re holding back", message: "Hi love, this is your letter for when you’re holding back. I love you. 💗" },
+      { topic: "when you’re having a bad mental health day", message: "Hi love, this is your letter for when you’re having a bad mental health day. I love you. 💗" },
+      { topic: "when you want to escape", message: "Hi love, this is your letter for when you want to escape. I love you. 💗" },
+      { topic: "when I’m driving you crazy", message: "Hi love, this is your letter for when I’m driving you crazy. I love you. 💗" },
+      { topic: "when you’re stressed out", message: "Hi love, this is your letter for when you’re stressed out. I love you. 💗" },
+      { topic: "when you feel out of place", message: "Hi love, this is your letter for when you feel out of place. I love you. 💗" },
+      { topic: "when you need a change", message: "Hi love, this is your letter for when you need a change. I love you. 💗" },
+      { topic: "when you want to hear a secret", message: "Hi love, this is your letter for when you want to hear a secret. I love you. 💗" },
+      { topic: "when you feel scared", message: "Hi love, this is your letter for when you feel scared. I love you. 💗" },
+      { topic: "when the weather is gloomy", message: "Hi love, this is your letter for when the weather is gloomy. I love you. 💗" },
+      { topic: "when the weather is beautiful", message: "Hi love, this is your letter for when the weather is beautiful. I love you. 💗" },
+      { topic: "when you don’t feel like yourself", message: "Hi love, this is your letter for when you don’t feel like yourself. I love you. 💗" },
+      { topic: "when you need bucket list ideas", message: "Hi love, this is your letter for when you need bucket list ideas. I love you. 💗" },
+      { topic: "when reality isn’t meeting you’re expectations", message: "Hi love, this is your letter for when reality isn’t meeting you’re expectations. I love you. 💗" },
+      { topic: "when you need to focus", message: "Hi love, this is your letter for when you need to focus. I love you. 💗" },
+      { topic: "when you’re feeling homesick", message: "Hi love, this is your letter for when you’re feeling homesick. I love you. 💗" },
+      { topic: "when you need some self-love tips", message: "Hi love, this is your letter for when you need some self-love tips. I love you. 💗" },
+      { topic: "when you regret doing something", message: "Hi love, this is your letter for when you regret doing something. I love you. 💗" },
+      { topic: "when you need a reminder of how strong you are", message: "Hi love, this is your letter for when you need a reminder of how strong you are. I love you. 💗" },
+      { topic: "when you need a reason to be thankful", message: "Hi love, this is your letter for when you need a reason to be thankful. I love you. 💗" },
+      { topic: "when you need a distraction", message: "Hi love, this is your letter for when you need a distraction. I love you. 💗" },
+      { topic: "when you need someone to calm you down", message: "Hi love, this is your letter for when you need someone to calm you down. I love you. 💗" },
+      { topic: "when you feel grief", message: "Hi love, this is your letter for when you feel grief. I love you. 💗" },
+      { topic: "when it’s 3am and your thoughts are keeping you awake", message: "Hi love, this is your letter for when it’s 3am and your thoughts are keeping you awake. I love you. 💗" },
+      { topic: "when you’re pretending to be okay", message: "Hi love, this is your letter for when you’re pretending to be okay. I love you. 💗" },
+      { topic: "when you need book recommendations", message: "Hi love, this is your letter for when you need book recommendations. I love you. 💗" },
+      { topic: "when you don’t know what you’re doing with your life", message: "Hi love, this is your letter for when you don’t know what you’re doing with your life. I love you. 💗" },
+      { topic: "when you’re trying to quit a bad habit", message: "Hi love, this is your letter for when you’re trying to quit a bad habit. I love you. 💗" },
+      { topic: "when you do something you never thought you’d be able to do", message: "Hi love, this is your letter for when you do something you never thought you’d be able to do. I love you. 💗" },
+      { topic: "when you have no plans", message: "Hi love, this is your letter for when you have no plans. I love you. 💗" },
+      { topic: "when you want to hear poems about yourself", message: "Hi love, this is your letter for when you want to hear poems about yourself. I love you. 💗" },
+      { topic: "when you don’t feel like talking", message: "Hi love, this is your letter for when you don’t feel like talking. I love you. 💗" },
+      { topic: "when you want to learn something you never knew about me", message: "Hi love, this is your letter for when you want to learn something you never knew about me. I love you. 💗" },
+      { topic: "when you want to hear how I describe you to others", message: "Hi love, this is your letter for when you want to hear how I describe you to others. I love you. 💗" },
+      { topic: "when you’re feeling lucky", message: "Hi love, this is your letter for when you’re feeling lucky. I love you. 💗" },
+      { topic: "when you finish reading all the others", message: "Hi love, this is your letter for when you finish reading all the others. I love you. 💗" }
+    ];
+
+    const grid = document.getElementById('envelopeGrid');
+    const popup = document.getElementById('messagePopup');
+    const overlay = document.getElementById('overlay');
+    const popupContent = document.getElementById('popupContent');
+
+    messages.forEach(({ topic, message }) => {
+      const env = document.createElement('div');
+      env.className = 'envelope';
+      env.textContent = topic;
+      env.onclick = () => {
+        popupContent.textContent = message;
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+      };
+      grid.appendChild(env);
+    });
+
+    function closePopup() {
+      popup.style.display = 'none';
+      overlay.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
